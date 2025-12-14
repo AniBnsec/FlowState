@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowState | Focus OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0f0f13;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #6c5ce7;
+            --accent-glow: rgba(108, 92, 231, 0.4);
+            --text-main: #ffffff;
+            --text-muted: #a2a2a2;
+            --danger: #ff7675;
+            --success: #00b894;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 184, 148, 0.1) 0%, transparent 40%);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-image 0.5s ease;
+        }
+
+        /* --- LIVE HEADER --- */
+        .top-header {
+            height: 60px;
+            width: 100%;
+            background-color: rgba(15, 15, 19, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .header-logo {
+            font-weight: 800;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+        .header-logo i { color: var(--accent); transition: color 0.3s ease; }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .theme-dots {
+            display: flex;
+            gap: 8px;
+        }
+        .theme-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: transform 0.2s;
+        }
+        .theme-dot:hover { transform: scale(1.2); }
+
+        .zen-btn {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+        }
+        .zen-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+        .zen-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .header-clock {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-main);
+            letter-spacing: 0px;
+        }
+        .header-clock span.divider { margin: 0 10px; color: var(--text-muted); font-weight: 300; }
+
+        /* --- LAYOUT --- */
+        .app-container {
+            display: grid;
+            grid-template-columns: 320px 1fr 340px; 
+            flex: 1; 
+            gap: 20px;
+            padding: 20px;
+            overflow: hidden; 
+            transition: all 0.5s ease;
+        }
+
+        /* ZEN MODE STYLES */
+        body.zen-mode .app-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        body.zen-mode .glass-panel {
+            display: none; /* Hide all panels by default in Zen Mode */
+        }
+        body.zen-mode .glass-panel.timer-panel {
+            display: flex; /* Show only timer panel */
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+            min-height: 500px;
+            transform: scale(1.05);
+        }
+
+        /* --- GLASSMOPHISM CARDS --- */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            overflow: hidden; 
+            transition: all 0.3s ease;
+        }
+
+        h2 { font-weight: 800; font-size: 1.2rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        h2 i { color: var(--accent); transition: color 0.3s ease; }
+
+        /* --- LEFT: TIMER --- */
+        .timer-display {
+            font-size: 4.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin: 30px 0;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 30px var(--accent-glow);
+            transition: text-shadow 0.3s ease;
+        }
+
+        .session-counter {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: -20px;
+            margin-bottom: 30px;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .session-counter span { color: var(--accent); font-weight: bold; }
+        .reset-session-btn {
+            background: transparent; border: none; color: var(--text-muted);
+            cursor: pointer; font-size: 0.8rem; transition: color 0.2s;
+        }
+        .reset-session-btn:hover { color: var(--text-main); }
+
+        .timer-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 14px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+        }
+
+        .btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 15px var(--accent-glow); transition: background 0.3s ease, box-shadow 0.3s ease; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-glow); }
+        
+        .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+
+        .timer-modes {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.3);
+            padding: 6px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .mode-btn:hover { color: white; }
+        .mode-btn.active { background: rgba(255,255,255,0.1); color: white; font-weight: 600; }
+
+        /* Timer Custom Input Styled Cleanly */
+        .custom-timer-container {
+            margin-bottom: 20px;
+            padding: 0 10px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .custom-timer-container:hover { opacity: 1; }
+        
+        .custom-timer-input {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .custom-timer-input input {
+            width: 50px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 5px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: border-color 0.2s;
+        }
+        .custom-timer-input input:focus { border-color: var(--accent); }
+
+        /* Quote Styling Update */
+        #quote-container {
+            margin-top: auto; 
+            min-height: 50px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 10px;
+            text-align: center;
+        }
+        #quote-text {
+            font-size: 0.95rem; 
+            color: var(--accent); /* Theme Color */
+            font-weight: 800; /* Bold */
+            text-shadow: 0 0 12px var(--accent-glow); /* Glowing Light Effect */
+            line-height: 1.4;
+            transition: all 0.5s ease;
+        }
+        .refresh-quote-btn {
+            background: transparent; border: none; color: var(--text-muted);
+            cursor: pointer; font-size: 0.9rem; opacity: 0.5; transition: 0.2s;
+        }
+        .refresh-quote-btn:hover { opacity: 1; color: var(--accent); }
+
+
+        /* --- MIDDLE: TASKS --- */
+        .task-header-row {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0;
+        }
+        .task-header-row h2 { margin-bottom: 0; }
+        
+        .clear-btn {
+            background: transparent; border: none; color: var(--text-muted); 
+            cursor: pointer; font-size: 0.9rem; transition: 0.2s;
+        }
+        .clear-btn:hover { color: var(--text-main); }
+
+        .task-input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+        input[type="text"]:focus { border-color: var(--accent); }
+
+        .task-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+            min-height: 0;
+            margin-bottom: 10px;
+        }
+        .task-list::-webkit-scrollbar { width: 6px; }
+        .task-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+        .task-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid transparent;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .task-item:hover { background: rgba(255,255,255,0.06); transform: translateX(5px); }
+        .task-item.completed { opacity: 0.5; }
+        .task-item.completed span { text-decoration: line-through; color: var(--text-muted); }
+
+        .check-circle {
+            width: 20px; height: 20px;
+            border: 2px solid var(--text-muted);
+            border-radius: 50%;
+            margin-right: 15px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .task-item.completed .check-circle { border-color: var(--success); background: var(--success); }
+        .task-item.completed .check-circle::after { content: '✓'; font-size: 12px; color: white; }
+
+        .delete-btn {
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 5px;
+            transition: 0.2s;
+        }
+        .delete-btn:hover { color: var(--danger); }
+
+        /* NEW: Daily Goal Tracker (Replaces Scratchpad) */
+        .panel-divider {
+            height: 1px;
+            background: var(--glass-border);
+            margin: 10px 0 20px 0;
+            flex-shrink: 0;
+        }
+        .daily-goal-section {
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--glass-border);
+        }
+        .goal-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+            font-size: 0.9rem; font-weight: 700; color: var(--text-main);
+        }
+        .goal-input {
+            width: 50px; background: transparent; border: none; border-bottom: 1px solid var(--text-muted);
+            color: var(--accent); text-align: center; font-weight: bold; font-family: 'JetBrains Mono';
+        }
+        .progress-track {
+            width: 100%; height: 10px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .progress-fill {
+            height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .goal-status {
+            font-size: 0.75rem; color: var(--text-muted); text-align: right;
+        }
+
+        /* --- RIGHT: SOUNDSCAPES --- */
+        .sound-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+            min-height: 0;
+        }
+        .sound-list::-webkit-scrollbar { width: 6px; }
+        .sound-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+        .sound-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: transform 0.2s;
+        }
+        .sound-card:hover { transform: translateY(-2px); }
+
+        .sound-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .sound-icon {
+            width: 36px; height: 36px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            color: var(--accent);
+            transition: color 0.3s ease;
+        }
+        
+        .sound-info h4 { font-size: 0.95rem; margin-bottom: 2px; }
+
+        /* Custom Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333; border-radius: 22px; transition: .4s;
+        }
+        .slider:before {
+            position: absolute; content: "";
+            height: 16px; width: 16px;
+            left: 3px; bottom: 3px;
+            background-color: white; border-radius: 50%; transition: .4s;
+        }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(18px); }
+
+        /* Volume Slider */
+        input[type=range] {
+            width: 100%;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px;
+            background: rgba(255,255,255,0.2); border-radius: 2px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px; width: 14px; border-radius: 50%;
+            background: white; margin-top: -5px; cursor: pointer;
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        .modal-content {
+            background: rgba(20, 20, 25, 0.95); border: 1px solid var(--glass-border);
+            padding: 40px; border-radius: 24px; text-align: center;
+            max-width: 400px; width: 90%;
+            transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .modal-overlay.show .modal-content { transform: scale(1); }
+        .modal-icon {
+            font-size: 3rem; color: var(--accent); margin-bottom: 20px;
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+        .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+        .modal-text { color: var(--text-muted); margin-bottom: 30px; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+                overflow-y: auto;
+            }
+            body.zen-mode .glass-panel.timer-panel {
+                transform: none;
+                max-width: 100%;
+            }
+            .top-header { padding: 0 15px; font-size: 0.9rem; }
+            body { overflow: auto; height: auto; }
+            .header-clock { display: none; } /* Hide clock on mobile to save space */
+        }
+    </style>
+</head>
+<body>
+
+<header class="top-header">
+    <div class="header-logo">
+        <i class="fas fa-layer-group"></i> FlowState
+    </div>
+
+    <div class="header-controls">
+        <div class="header-clock" id="live-clock">Loading...</div>
+        
+        <div class="theme-dots">
+            <div class="theme-dot" style="background: #6c5ce7;" onclick="setTheme('#6c5ce7')" title="Purple"></div>
+            <div class="theme-dot" style="background: #0984e3;" onclick="setTheme('#0984e3')" title="Blue"></div>
+            <div class="theme-dot" style="background: #00b894;" onclick="setTheme('#00b894')" title="Green"></div>
+            <div class="theme-dot" style="background: #e17055;" onclick="setTheme('#e17055')" title="Orange"></div>
+            <div class="theme-dot" style="background: #e84393;" onclick="setTheme('#e84393')" title="Pink"></div>
+            <div class="theme-dot" style="background: #fdcb6e;" onclick="setTheme('#fdcb6e')" title="Yellow"></div>
+            <!-- NEW COLORS -->
+            <div class="theme-dot" style="background: #d63031;" onclick="setTheme('#d63031')" title="Red"></div>
+            <div class="theme-dot" style="background: #00cec9;" onclick="setTheme('#00cec9')" title="Teal"></div>
+            <div class="theme-dot" style="background: #636e72;" onclick="setTheme('#636e72')" title="Slate"></div>
+        </div>
+
+        <button class="zen-btn" onclick="toggleZenMode()" id="zenBtn">
+            <i class="fas fa-expand"></i> Zen Mode
+        </button>
+    </div>
+</header>
+
+<div class="app-container">
+    
+    <div class="glass-panel timer-panel">
+        <h2><i class="fas fa-stopwatch"></i> Focus Timer</h2>
+        
+        <div class="timer-modes">
+            <button class="mode-btn active" onclick="setMode('focus')">Focus</button>
+            <button class="mode-btn" onclick="setMode('short')">Short</button>
+            <button class="mode-btn" onclick="setMode('long')">Long</button>
+        </div>
+
+        <!-- Custom Time Input (Visible only in Focus Mode) -->
+        <div class="custom-timer-container">
+            <div class="custom-timer-input">
+                <i class="fas fa-pen" style="font-size: 0.8rem;"></i>
+                <span>Focus Duration:</span>
+                <input type="number" id="customFocusInput" value="25" min="1" max="120" oninput="updateFocusDuration(this.value)">
+                <span>min</span>
+            </div>
+        </div>
+
+        <div class="timer-display" id="timer">25:00</div>
+        
+        <!-- Session Counter -->
+        <div class="session-counter">
+            Sessions Completed: <span id="sessionCount">0</span>
+            <button class="reset-session-btn" onclick="resetSessionCount()" title="Reset Counter"><i class="fas fa-rotate-right"></i></button>
+        </div>
+
+        <div class="timer-controls">
+            <button class="btn btn-primary" id="startBtn" onclick="toggleTimer()">Start Focus</button>
+            <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
+        </div>
+
+        <!-- Updated Quote Section -->
+        <div id="quote-container">
+            <p id="quote-text">"The only way to do great work is to love what you do."</p>
+            <button class="refresh-quote-btn" onclick="updateQuote()"><i class="fas fa-sync-alt"></i></button>
+        </div>
+    </div>
+
+    <div class="glass-panel">
+        <div class="task-header-row">
+            <h2><i class="fas fa-list-check"></i> Tasks & Goals</h2>
+            <button class="clear-btn" onclick="clearCompletedTasks()" title="Clear Completed"><i class="fas fa-broom"></i></button>
+        </div>
+        
+        <div class="task-input-area">
+            <input type="text" id="taskInput" placeholder="Add a new task..." onkeypress="handleKeyPress(event)">
+            <button class="btn btn-primary" onclick="addTask()"><i class="fas fa-plus"></i></button>
+        </div>
+
+        <div class="task-list" id="taskList">
+        </div>
+
+        <!-- NEW: Daily Goal Tracker (Replaces Scratchpad) -->
+        <div class="panel-divider"></div>
+        <div class="daily-goal-section">
+            <div class="goal-header">
+                <span><i class="fas fa-bullseye"></i> Daily Goal</span>
+                <div>
+                    Target: <input type="number" class="goal-input" id="goalInput" value="8" min="1" max="20" onchange="updateGoal()">
+                </div>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="goalProgress" style="width: 0%"></div>
+            </div>
+            <div class="goal-status" id="goalStatus">0/8 Tasks Completed</div>
+        </div>
+
+    </div>
+
+    <div class="glass-panel">
+        <h2><i class="fas fa-sliders-h"></i> Sound Mixer</h2>
+        
+        <div class="sound-list">
+            
+            <!-- GROUP 1: Water & Weather -->
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-cloud-rain"></i></div>
+                        <div class="sound-info">
+                            <h4>Heavy Rain</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Relaxation</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="rainToggle" onchange="toggleRain()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setRainVolume(this.value)">
+            </div>
+
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="sound-info">
+                            <h4>Thunder Storm</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Heavy Storm</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="thunderToggle" onchange="toggleThunder()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setThunderVolume(this.value)">
+            </div>
+
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-water"></i></div>
+                        <div class="sound-info">
+                            <h4>Ocean Waves</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Calm Tides</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="oceanToggle" onchange="toggleOcean()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setOceanVolume(this.value)">
+            </div>
+
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-water"></i></div> 
+                        <div class="sound-info">
+                            <h4>River Stream</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Flowing Water</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="riverToggle" onchange="toggleRiver()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setRiverVolume(this.value)">
+            </div>
+
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-wind"></i></div>
+                        <div class="sound-info">
+                            <h4>Wind</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Light Breeze</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="windToggle" onchange="toggleWind()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setWindVolume(this.value)">
+            </div>
+
+            <!-- GROUP 2: Nature & Life -->
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-tree"></i></div>
+                        <div class="sound-info">
+                            <h4>Forest Ambience</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Nature Sounds</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="forestToggle" onchange="toggleForest()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setForestVolume(this.value)">
+            </div>
+
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-dove"></i></div>
+                        <div class="sound-info">
+                            <h4>Morning Birds</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Nature Park</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="birdsToggle" onchange="toggleBirds()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setBirdsVolume(this.value)">
+            </div>
+
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-moon"></i></div>
+                        <div class="sound-info">
+                            <h4>Night Crickets</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Summer Night</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="nightToggle" onchange="toggleNight()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setNightVolume(this.value)">
+            </div>
+
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-rss"></i></div>
+                        <div class="sound-info">
+                            <h4>Farm Noise</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Rural Life</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="farmToggle" onchange="toggleFarm()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setFarmVolume(this.value)">
+            </div>
+
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-fire"></i></div>
+                        <div class="sound-info">
+                            <h4>Crackling Fire</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Cozy Warmth</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="fireToggle" onchange="toggleFire()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setFireVolume(this.value)">
+            </div>
+
+            <!-- GROUP 3: Atmosphere & Drones -->
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-book-open"></i></div>
+                        <div class="sound-info">
+                            <h4>Quiet Library</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Study Focus</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="libraryToggle" onchange="toggleLibrary()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setLibraryVolume(this.value)">
+            </div>
+
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-train"></i></div>
+                        <div class="sound-info">
+                            <h4>Train Ride</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Travel Ambience</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="trainToggle" onchange="toggleTrain()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setTrainVolume(this.value)">
+            </div>
+
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-rocket"></i></div>
+                        <div class="sound-info">
+                            <h4>Deep Space</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Isolation Drone</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="spaceToggle" onchange="toggleSpace()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setSpaceVolume(this.value)">
+            </div>
+
+            <div class="sound-card">
+                <div class="sound-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="sound-icon"><i class="fas fa-wave-square"></i></div>
+                        <div class="sound-info">
+                            <h4>White Noise</h4>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Deep Focus</p>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="noiseToggle" onchange="toggleNoise()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setNoiseVolume(this.value)">
+            </div>
+
+        </div>
+        
+        <div style="margin-top: auto; opacity: 0.5; font-size: 0.8rem; text-align: center; flex-shrink: 0; padding-top: 10px;">
+            <i class="fas fa-infinity"></i> Infinite Audio Generation
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="finishModal">
+    <div class="modal-content">
+        <div class="modal-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="modal-title">Session Complete!</div>
+        <div class="modal-text">Great job staying focused. Take a moment to breathe.</div>
+        <button class="btn btn-primary" onclick="closeModal()">Continue</button>
+    </div>
+</div>
+
+<!-- Audio Files -->
+<audio id="rainAudio" loop src="mixkit-heavy-rain-drops-2399.wav"></audio>
+<audio id="forestAudio" loop src="mixkit-birds-in-forest-loop-1239.wav"></audio>
+<audio id="oceanAudio" loop src="mixkit-motorboat-on-the-sea-1183.wav"></audio>
+<audio id="fireAudio" loop src="mixkit-light-rain-loop-2393.wav"></audio>
+<audio id="windAudio" loop src="mixkit-wind-cold-interior-1172.wav"></audio>
+<audio id="libraryAudio" loop src="mixkit-browsing-book-by-pages-1099.wav"></audio>
+<audio id="thunderAudio" loop src="mixkit-heavy-rain-and-thunder-in-background-2406.wav"></audio>
+<audio id="nightAudio" loop src="mixkit-summer-night-in-the-forest-1227.wav"></audio>
+<audio id="birdsAudio" loop src="mixkit-natural-ambience-with-flowing-water-and-birds-61.wav"></audio>
+<audio id="riverAudio" loop src="mixkit-sea-waves-loop-1196.wav"></audio>
+<audio id="FarmAudio" loop src="mixkit-farm-animals-in-the-morning-7.wav"></audio> 
+<audio id="trainAudio" loop src="mixkit-slow-tram-passing-3019.wav"></audio>
+<audio id="spaceAudio" loop src="mixkit-mowing-the-lawn-engine-hum-1919.wav"></audio>
+
+<script>
+    // --- 0. LIVE HEADER CLOCK ---
+    function updateClock() {
+        const now = new Date();
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        const day = days[now.getDay()];
+        const month = months[now.getMonth()];
+        const date = now.getDate();
+        
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; 
+        
+        const timeString = `${day}, ${month} ${date} <span class="divider">|</span> ${hours}:${minutes}:${seconds} ${ampm}`;
+        document.getElementById('live-clock').innerHTML = timeString;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // --- NEW: THEME AND ZEN MODE ---
+    function setTheme(color) {
+        document.documentElement.style.setProperty('--accent', color);
+        document.documentElement.style.setProperty('--accent-glow', color + '66'); // Adding transparency
+    }
+
+    function toggleZenMode() {
+        document.body.classList.toggle('zen-mode');
+        const btn = document.getElementById('zenBtn');
+        const isActive = document.body.classList.contains('zen-mode');
+        if (isActive) {
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fas fa-compress"></i> Exit Zen';
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="fas fa-expand"></i> Zen Mode';
+        }
+    }
+
+
+    // --- 1. TIMER LOGIC ---
+    let timeLeft = 25 * 60;
+    let timerId = null;
+    let isRunning = false;
+    let currentMode = 'focus';
+    let sessionsCompleted = 0;
+
+    const modes = {
+        focus: 25 * 60,
+        short: 5 * 60,
+        long: 15 * 60
+    };
+
+    function updateFocusDuration(val) {
+        const minutes = parseInt(val);
+        if (minutes && minutes > 0) {
+            modes.focus = minutes * 60;
+            // Only update timer immediately if we are in 'focus' mode and timer isn't running
+            if (currentMode === 'focus' && !isRunning) {
+                timeLeft = modes.focus;
+                updateDisplay();
+            }
+        }
+    }
+
+    function updateDisplay() {
+        const m = Math.floor(timeLeft / 60);
+        const s = timeLeft % 60;
+        document.getElementById('timer').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+        document.title = `${m}:${s < 10 ? '0'+s : s} - FlowState`;
+    }
+
+    function toggleTimer() {
+        const btn = document.getElementById('startBtn');
+        if (isRunning) {
+            clearInterval(timerId);
+            isRunning = false;
+            btn.innerText = "Start Focus";
+            btn.classList.remove('active');
+        } else {
+            isRunning = true;
+            btn.innerText = "Pause";
+            timerId = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay();
+                } else {
+                    clearInterval(timerId);
+                    isRunning = false;
+                    btn.innerText = "Start Focus";
+                    new Audio('https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3').play();
+                    
+                    if (currentMode === 'focus') {
+                        sessionsCompleted++;
+                        document.getElementById('sessionCount').innerText = sessionsCompleted;
+                    }
+                    
+                    showModal(); // Use Modal instead of Alert
+                }
+            }, 1000);
+        }
+    }
+
+    function resetTimer() {
+        clearInterval(timerId);
+        isRunning = false;
+        document.getElementById('startBtn').innerText = "Start Focus";
+        timeLeft = modes[currentMode];
+        updateDisplay();
+        updateQuote(); // New Quote on Reset
+    }
+    
+    function resetSessionCount() {
+        sessionsCompleted = 0;
+        document.getElementById('sessionCount').innerText = sessionsCompleted;
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        const customInputContainer = document.querySelector('.custom-timer-container');
+        if (mode === 'focus') {
+            customInputContainer.style.display = 'block';
+        } else {
+            customInputContainer.style.display = 'none';
+        }
+
+        resetTimer();
+    }
+    
+    // --- MODAL & QUOTES LOGIC ---
+    function showModal() {
+        document.getElementById('finishModal').classList.add('show');
+    }
+    function closeModal() {
+        document.getElementById('finishModal').classList.remove('show');
+        resetTimer();
+    }
+
+    const quotes = [
+        "The only way to do great work is to love what you do.",
+        "Focus on being productive instead of busy.",
+        "Your future is created by what you do today, not tomorrow.",
+        "Starve your distractions, feed your focus.",
+        "One thing at a time. Most important thing first.",
+        "Simplicity is the ultimate sophistication.",
+        "Do it with passion or not at all.",
+        "The best way out is always through."
+    ];
+
+    function updateQuote() {
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        document.getElementById('quote-text').innerText = `"${randomQuote}"`;
+    }
+
+    // --- KEYBOARD SHORTCUTS ---
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            toggleTimer();
+        }
+    });
+
+    // --- 2. TASK MANAGER (LocalStorage) ---
+    let tasks = JSON.parse(localStorage.getItem('flowstate_tasks')) || [];
+
+    function renderTasks() {
+        const list = document.getElementById('taskList');
+        list.innerHTML = '';
+        tasks.forEach((task, index) => {
+            const item = document.createElement('div');
+            item.className = `task-item ${task.completed ? 'completed' : ''}`;
+            item.innerHTML = `
+                <div style="display:flex; align-items:center;">
+                    <div class="check-circle" onclick="toggleTask(${index})"></div>
+                    <span>${task.text}</span>
+                </div>
+                <i class="fas fa-trash delete-btn" onclick="deleteTask(${index})"></i>
+            `;
+            list.appendChild(item);
+        });
+        localStorage.setItem('flowstate_tasks', JSON.stringify(tasks));
+        updateGoalProgress(); // Update daily goal when tasks change
+    }
+
+    function addTask() {
+        const input = document.getElementById('taskInput');
+        if (input.value.trim() === '') return;
+        tasks.push({ text: input.value, completed: false });
+        input.value = '';
+        renderTasks();
+    }
+
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') addTask();
+    }
+
+    function toggleTask(index) {
+        tasks[index].completed = !tasks[index].completed;
+        renderTasks();
+    }
+
+    function deleteTask(index) {
+        tasks.splice(index, 1);
+        renderTasks();
+    }
+    
+    // Feature: Clear Completed
+    function clearCompletedTasks() {
+        tasks = tasks.filter(t => !t.completed);
+        renderTasks();
+    }
+
+    // --- 2.5 DAILY GOAL LOGIC ---
+    let dailyGoal = 8;
+    
+    function updateGoal() {
+        const input = document.getElementById('goalInput');
+        if(input.value > 0) {
+            dailyGoal = parseInt(input.value);
+            updateGoalProgress();
+        }
+    }
+
+    function updateGoalProgress() {
+        const completedTasksCount = tasks.filter(t => t.completed).length;
+        const percentage = Math.min((completedTasksCount / dailyGoal) * 100, 100);
+        document.getElementById('goalProgress').style.width = percentage + '%';
+        document.getElementById('goalStatus').innerText = `${completedTasksCount}/${dailyGoal} Tasks Completed`;
+    }
+
+    // Initialize with updated goal tracking logic
+    renderTasks();
+    
+    // --- 3. AUDIO ENGINE ---
+
+    // --- White Noise (Web Audio API) ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    let noiseNode;
+    let gainNode;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new AudioContext();
+        }
+    }
+
+    function createNoise() {
+        if (!audioCtx) initAudio();
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        noiseNode = audioCtx.createBufferSource();
+        noiseNode.buffer = buffer;
+        noiseNode.loop = true;
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 1000;
+
+        gainNode = audioCtx.createGain();
+        gainNode.gain.value = 0.5;
+
+        noiseNode.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        noiseNode.start();
+    }
+
+    function toggleNoise() {
+        const toggle = document.getElementById('noiseToggle');
+        if (toggle.checked) {
+            createNoise();
+        } else {
+            if (noiseNode) {
+                noiseNode.stop();
+                noiseNode = null;
+            }
+        }
+    }
+
+    function setNoiseVolume(val) {
+        if (gainNode) gainNode.gain.value = val;
+    }
+
+    // --- Audio File Sounds ---
+    function setupAudioControl(audioId, toggleId) {
+        const audioEl = document.getElementById(audioId);
+        const toggleEl = document.getElementById(toggleId);
+        
+        return {
+            toggle: () => {
+                if (toggleEl.checked) {
+                    audioEl.play().catch(e => console.log("Audio play error (check file source):", e));
+                } else {
+                    audioEl.pause();
+                }
+            },
+            setVolume: (val) => {
+                audioEl.volume = val;
+            }
+        };
+    }
+
+    const rainControls = setupAudioControl('rainAudio', 'rainToggle');
+    const toggleRain = rainControls.toggle;
+    const setRainVolume = rainControls.setVolume;
+
+    const forestControls = setupAudioControl('forestAudio', 'forestToggle');
+    const toggleForest = forestControls.toggle;
+    const setForestVolume = forestControls.setVolume;
+
+    const oceanControls = setupAudioControl('oceanAudio', 'oceanToggle');
+    const toggleOcean = oceanControls.toggle;
+    const setOceanVolume = oceanControls.setVolume;
+
+    const fireControls = setupAudioControl('fireAudio', 'fireToggle');
+    const toggleFire = fireControls.toggle;
+    const setFireVolume = fireControls.setVolume;
+    
+    const windControls = setupAudioControl('windAudio', 'windToggle');
+    const toggleWind = windControls.toggle; 
+    const setWindVolume = windControls.setVolume;
+
+    const libraryControls = setupAudioControl('libraryAudio', 'libraryToggle');
+    const toggleLibrary = libraryControls.toggle;
+    const setLibraryVolume = libraryControls.setVolume;
+
+    const thunderControls = setupAudioControl('thunderAudio', 'thunderToggle');
+    const toggleThunder = thunderControls.toggle;
+    const setThunderVolume = thunderControls.setVolume;
+
+    const nightControls = setupAudioControl('nightAudio', 'nightToggle');
+    const toggleNight = nightControls.toggle;
+    const setNightVolume = nightControls.setVolume;
+
+    const birdsControls = setupAudioControl('birdsAudio', 'birdsToggle');
+    const toggleBirds = birdsControls.toggle;
+    const setBirdsVolume = birdsControls.setVolume;
+
+    const riverControls = setupAudioControl('riverAudio', 'riverToggle');
+    const toggleRiver = riverControls.toggle;
+    const setRiverVolume = riverControls.setVolume;
+
+    const farmControls = setupAudioControl('FarmAudio', 'farmToggle');
+    const toggleFarm = farmControls.toggle;
+    const setFarmVolume = farmControls.setVolume;
+
+    const trainControls = setupAudioControl('trainAudio', 'trainToggle');
+    const toggleTrain = trainControls.toggle;
+    const setTrainVolume = trainControls.setVolume;
+
+    const spaceControls = setupAudioControl('spaceAudio', 'spaceToggle');
+    const toggleSpace = spaceControls.toggle;
+    const setSpaceVolume = spaceControls.setVolume;
+
+</script>
+</body>
+</html>
