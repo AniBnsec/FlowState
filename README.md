@@ -2,8 +2,6 @@
 
 **FlowState** is an all-in-one productivity dashboard designed to help you enter your zone of genius. Combining a customizable focus timer, a task management system, and an ambient sound mixer, FlowState creates the perfect digital environment for deep work and concentration.
 
-![Project Screenshot](image_366ec5.jpg)
-
 ## 🚀 Features
 
 ### ⏱️ Focus Timer (Pomodoro)
