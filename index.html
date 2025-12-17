@@ -523,7 +523,6 @@
             <div class="theme-dot" style="background: #e17055;" onclick="setTheme('#e17055')" title="Orange"></div>
             <div class="theme-dot" style="background: #e84393;" onclick="setTheme('#e84393')" title="Pink"></div>
             <div class="theme-dot" style="background: #fdcb6e;" onclick="setTheme('#fdcb6e')" title="Yellow"></div>
-            <!-- NEW COLORS -->
             <div class="theme-dot" style="background: #d63031;" onclick="setTheme('#d63031')" title="Red"></div>
             <div class="theme-dot" style="background: #00cec9;" onclick="setTheme('#00cec9')" title="Teal"></div>
             <div class="theme-dot" style="background: #636e72;" onclick="setTheme('#636e72')" title="Slate"></div>
@@ -546,7 +545,6 @@
             <button class="mode-btn" onclick="setMode('long')">Long</button>
         </div>
 
-        <!-- Custom Time Input (Visible only in Focus Mode) -->
         <div class="custom-timer-container">
             <div class="custom-timer-input">
                 <i class="fas fa-pen" style="font-size: 0.8rem;"></i>
@@ -558,7 +556,6 @@
 
         <div class="timer-display" id="timer">25:00</div>
         
-        <!-- Session Counter -->
         <div class="session-counter">
             Sessions Completed: <span id="sessionCount">0</span>
             <button class="reset-session-btn" onclick="resetSessionCount()" title="Reset Counter"><i class="fas fa-rotate-right"></i></button>
@@ -569,7 +566,6 @@
             <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
         </div>
 
-        <!-- Updated Quote Section -->
         <div id="quote-container">
             <p id="quote-text">"The only way to do great work is to love what you do."</p>
             <button class="refresh-quote-btn" onclick="updateQuote()"><i class="fas fa-sync-alt"></i></button>
@@ -590,7 +586,6 @@
         <div class="task-list" id="taskList">
         </div>
 
-        <!-- NEW: Daily Goal Tracker (Replaces Scratchpad) -->
         <div class="panel-divider"></div>
         <div class="daily-goal-section">
             <div class="goal-header">
@@ -612,7 +607,6 @@
         
         <div class="sound-list">
             
-            <!-- GROUP 1: Water & Weather -->
             <div class="sound-card">
                 <div class="sound-header">
                     <div style="display: flex; gap: 10px; align-items: center;">
@@ -698,7 +692,6 @@
                 <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setWindVolume(this.value)">
             </div>
 
-            <!-- GROUP 2: Nature & Life -->
             <div class="sound-card">
                 <div class="sound-header">
                     <div style="display: flex; gap: 10px; align-items: center;">
@@ -784,7 +777,6 @@
                 <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="setFireVolume(this.value)">
             </div>
 
-            <!-- GROUP 3: Atmosphere & Drones -->
             <div class="sound-card">
                 <div class="sound-header">
                     <div style="display: flex; gap: 10px; align-items: center;">
@@ -862,7 +854,6 @@
 
 </div>
 
-<!-- Modal -->
 <div class="modal-overlay" id="finishModal">
     <div class="modal-content">
         <div class="modal-icon"><i class="fas fa-check-circle"></i></div>
@@ -872,7 +863,6 @@
     </div>
 </div>
 
-<!-- Audio Files -->
 <audio id="rainAudio" loop src="mixkit-heavy-rain-drops-2399.wav"></audio>
 <audio id="forestAudio" loop src="mixkit-birds-in-forest-loop-1239.wav"></audio>
 <audio id="oceanAudio" loop src="mixkit-motorboat-on-the-sea-1183.wav"></audio>
@@ -886,6 +876,8 @@
 <audio id="FarmAudio" loop src="mixkit-farm-animals-in-the-morning-7.wav"></audio> 
 <audio id="trainAudio" loop src="mixkit-slow-tram-passing-3019.wav"></audio>
 <audio id="spaceAudio" loop src="mixkit-mowing-the-lawn-engine-hum-1919.wav"></audio>
+
+<audio id="alarmSound" src="mixkit-classic-clock-gong-1066.wav"></audio>
 
 <script>
     // --- 0. LIVE HEADER CLOCK ---
@@ -981,7 +973,9 @@
                     clearInterval(timerId);
                     isRunning = false;
                     btn.innerText = "Start Focus";
-                    new Audio('https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3').play();
+                    
+                    // --- CHANGED: Plays the Alarm sound from HTML ID ---
+                    document.getElementById('alarmSound').play();
                     
                     if (currentMode === 'focus') {
                         sessionsCompleted++;
@@ -1257,6 +1251,4 @@
 
 </script>
 </body>
-
 </html>
-
