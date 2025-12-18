@@ -96,6 +96,7 @@
 
         .mobile-theme-btn { display: none; } /* Hidden on Desktop */
 
+
         .header-clock {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.95rem;
@@ -372,7 +373,7 @@
         }
         .delete-btn:hover { color: var(--danger); }
 
-        /* Daily Goal Tracker */
+        /* NEW: Daily Goal Tracker (Replaces Scratchpad) */
         .panel-divider {
             height: 1px;
             background: var(--glass-border);
@@ -575,11 +576,11 @@
 
     <div class="header-controls">
         <div class="header-clock" id="live-clock">Loading...</div>
-        
+
         <button class="mobile-theme-btn" onclick="toggleMobileTheme()">
             <i class="fas fa-palette"></i> Theme
         </button>
-
+        
         <div class="theme-dots" id="themeSelector">
             <div class="theme-dot" style="background: #6c5ce7;" onclick="setTheme('#6c5ce7')" title="Purple"></div>
             <div class="theme-dot" style="background: #0984e3;" onclick="setTheme('#0984e3')" title="Blue"></div>
@@ -932,24 +933,24 @@
     </div>
 </div>
 
-<!-- Audio Assets -->
-<audio id="rainAudio" loop src="https://mixkit.github.io/cdn/mixkit-heavy-rain-drops-2399.wav"></audio>
-<audio id="forestAudio" loop src="https://mixkit.github.io/cdn/mixkit-birds-in-forest-loop-1239.wav"></audio>
-<audio id="oceanAudio" loop src="https://mixkit.github.io/cdn/mixkit-motorboat-on-the-sea-1183.wav"></audio>
-<audio id="fireAudio" loop src="https://mixkit.github.io/cdn/mixkit-light-rain-loop-2393.wav"></audio>
-<audio id="windAudio" loop src="https://mixkit.github.io/cdn/mixkit-wind-cold-interior-1172.wav"></audio>
-<audio id="libraryAudio" loop src="https://mixkit.github.io/cdn/mixkit-browsing-book-by-pages-1099.wav"></audio>
-<audio id="thunderAudio" loop src="https://mixkit.github.io/cdn/mixkit-heavy-rain-and-thunder-in-background-2406.wav"></audio>
-<audio id="nightAudio" loop src="https://mixkit.github.io/cdn/mixkit-summer-night-in-the-forest-1227.wav"></audio>
-<audio id="birdsAudio" loop src="https://mixkit.github.io/cdn/mixkit-natural-ambience-with-flowing-water-and-birds-61.wav"></audio>
-<audio id="riverAudio" loop src="https://mixkit.github.io/cdn/mixkit-sea-waves-loop-1196.wav"></audio>
-<audio id="FarmAudio" loop src="https://mixkit.github.io/cdn/mixkit-farm-animals-in-the-morning-7.wav"></audio> 
-<audio id="trainAudio" loop src="https://mixkit.github.io/cdn/mixkit-slow-tram-passing-3019.wav"></audio>
-<audio id="spaceAudio" loop src="https://mixkit.github.io/cdn/mixkit-mowing-the-lawn-engine-hum-1919.wav"></audio>
-<audio id="alarmSound" src="https://mixkit.github.io/cdn/mixkit-classic-clock-gong-1066.wav"></audio>
+<audio id="rainAudio" loop src="mixkit-heavy-rain-drops-2399.wav"></audio>
+<audio id="forestAudio" loop src="mixkit-birds-in-forest-loop-1239.wav"></audio>
+<audio id="oceanAudio" loop src="mixkit-motorboat-on-the-sea-1183.wav"></audio>
+<audio id="fireAudio" loop src="mixkit-light-rain-loop-2393.wav"></audio>
+<audio id="windAudio" loop src="mixkit-wind-cold-interior-1172.wav"></audio>
+<audio id="libraryAudio" loop src="mixkit-browsing-book-by-pages-1099.wav"></audio>
+<audio id="thunderAudio" loop src="mixkit-heavy-rain-and-thunder-in-background-2406.wav"></audio>
+<audio id="nightAudio" loop src="mixkit-summer-night-in-the-forest-1227.wav"></audio>
+<audio id="birdsAudio" loop src="mixkit-natural-ambience-with-flowing-water-and-birds-61.wav"></audio>
+<audio id="riverAudio" loop src="mixkit-sea-waves-loop-1196.wav"></audio>
+<audio id="FarmAudio" loop src="mixkit-farm-animals-in-the-morning-7.wav"></audio> 
+<audio id="trainAudio" loop src="mixkit-slow-tram-passing-3019.wav"></audio>
+<audio id="spaceAudio" loop src="mixkit-mowing-the-lawn-engine-hum-1919.wav"></audio>
+
+<audio id="alarmSound" src="mixkit-classic-clock-gong-1066.wav"></audio>
 
 <script>
-    // --- 0. LIVE CLOCK ENGINE ---
+    // --- 0. LIVE HEADER CLOCK ---
     function updateClock() {
         const now = new Date();
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -968,7 +969,7 @@
         
         const timeString = `${day}, ${month} ${date} <span class="divider">|</span> ${hours}:${minutes}:${seconds} ${ampm}`;
         const mobileTimeString = `${day}, ${month} ${date} | ${hours}:${minutes}:${seconds} ${ampm}`;
-        
+
         // Update Desktop Clock
         const clockEl = document.getElementById('live-clock');
         if (clockEl) clockEl.innerHTML = timeString;
@@ -1024,6 +1025,7 @@
         const minutes = parseInt(val);
         if (minutes && minutes > 0) {
             modes.focus = minutes * 60;
+            // Only update timer immediately if we are in 'focus' mode and timer isn't running
             if (currentMode === 'focus' && !isRunning) {
                 timeLeft = modes.focus;
                 updateDisplay();
@@ -1056,12 +1058,16 @@
                     clearInterval(timerId);
                     isRunning = false;
                     btn.innerText = "Start Focus";
+                    
+                    // --- CHANGED: Plays the Alarm sound from HTML ID ---
                     document.getElementById('alarmSound').play();
+                    
                     if (currentMode === 'focus') {
                         sessionsCompleted++;
                         document.getElementById('sessionCount').innerText = sessionsCompleted;
                     }
-                    showModal();
+                    
+                    showModal(); // Use Modal instead of Alert
                 }
             }, 1000);
         }
@@ -1073,7 +1079,7 @@
         document.getElementById('startBtn').innerText = "Start Focus";
         timeLeft = modes[currentMode];
         updateDisplay();
-        updateQuote();
+        updateQuote(); // New Quote on Reset
     }
     
     function resetSessionCount() {
@@ -1092,9 +1098,11 @@
         } else {
             customInputContainer.style.display = 'none';
         }
+
         resetTimer();
     }
     
+    // --- MODAL & QUOTES LOGIC ---
     function showModal() {
         document.getElementById('finishModal').classList.add('show');
     }
@@ -1119,7 +1127,7 @@
         document.getElementById('quote-text').innerText = `"${randomQuote}"`;
     }
 
-    // Keyboards
+    // --- KEYBOARD SHORTCUTS ---
     document.addEventListener('keydown', (e) => {
         if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
             e.preventDefault();
@@ -1127,7 +1135,7 @@
         }
     });
 
-    // --- 2. TASK MANAGER ---
+    // --- 2. TASK MANAGER (LocalStorage) ---
     let tasks = JSON.parse(localStorage.getItem('flowstate_tasks')) || [];
 
     function renderTasks() {
@@ -1146,7 +1154,7 @@
             list.appendChild(item);
         });
         localStorage.setItem('flowstate_tasks', JSON.stringify(tasks));
-        updateGoalProgress();
+        updateGoalProgress(); // Update daily goal when tasks change
     }
 
     function addTask() {
@@ -1171,13 +1179,15 @@
         renderTasks();
     }
     
+    // Feature: Clear Completed
     function clearCompletedTasks() {
         tasks = tasks.filter(t => !t.completed);
         renderTasks();
     }
 
-    // --- 2.5 DAILY GOAL ---
+    // --- 2.5 DAILY GOAL LOGIC ---
     let dailyGoal = 8;
+    
     function updateGoal() {
         const input = document.getElementById('goalInput');
         if(input.value > 0) {
@@ -1185,6 +1195,7 @@
             updateGoalProgress();
         }
     }
+
     function updateGoalProgress() {
         const completedTasksCount = tasks.filter(t => t.completed).length;
         const percentage = Math.min((completedTasksCount / dailyGoal) * 100, 100);
@@ -1192,16 +1203,21 @@
         document.getElementById('goalStatus').innerText = `${completedTasksCount}/${dailyGoal} Tasks Completed`;
     }
 
+    // Initialize with updated goal tracking logic
     renderTasks();
     
     // --- 3. AUDIO ENGINE ---
+
+    // --- White Noise (Web Audio API) ---
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
     let noiseNode;
     let gainNode;
 
     function initAudio() {
-        if (!audioCtx) audioCtx = new AudioContext();
+        if (!audioCtx) {
+            audioCtx = new AudioContext();
+        }
     }
 
     function createNoise() {
@@ -1209,7 +1225,10 @@
         const bufferSize = audioCtx.sampleRate * 2;
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
 
         noiseNode = audioCtx.createBufferSource();
         noiseNode.buffer = buffer;
@@ -1230,23 +1249,36 @@
 
     function toggleNoise() {
         const toggle = document.getElementById('noiseToggle');
-        if (toggle.checked) createNoise();
-        else if (noiseNode) { noiseNode.stop(); noiseNode = null; }
+        if (toggle.checked) {
+            createNoise();
+        } else {
+            if (noiseNode) {
+                noiseNode.stop();
+                noiseNode = null;
+            }
+        }
     }
 
     function setNoiseVolume(val) {
         if (gainNode) gainNode.gain.value = val;
     }
 
+    // --- Audio File Sounds ---
     function setupAudioControl(audioId, toggleId) {
         const audioEl = document.getElementById(audioId);
         const toggleEl = document.getElementById(toggleId);
+        
         return {
             toggle: () => {
-                if (toggleEl.checked) audioEl.play().catch(e => console.log("Audio play error:", e));
-                else audioEl.pause();
+                if (toggleEl.checked) {
+                    audioEl.play().catch(e => console.log("Audio play error (check file source):", e));
+                } else {
+                    audioEl.pause();
+                }
             },
-            setVolume: (val) => { audioEl.volume = val; }
+            setVolume: (val) => {
+                audioEl.volume = val;
+            }
         };
     }
 
@@ -1305,4 +1337,3 @@
 </script>
 </body>
 </html>
-
