@@ -36,7 +36,6 @@
             transition: background-image 0.5s ease;
         }
 
-        /* --- LIVE HEADER --- */
         .top-header {
             height: 60px;
             width: 100%;
@@ -94,8 +93,7 @@
         .zen-btn:hover { background: rgba(255,255,255,0.1); color: white; }
         .zen-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-        .mobile-theme-btn { display: none; } /* Hidden on Desktop */
-
+        .mobile-theme-btn { display: none; }
 
         .header-clock {
             font-family: 'JetBrains Mono', monospace;
@@ -106,7 +104,6 @@
         }
         .header-clock span.divider { margin: 0 10px; color: var(--text-muted); font-weight: 300; }
 
-        /* Mobile specific clock section */
         .mobile-clock-container {
             display: none;
             padding: 15px 20px;
@@ -117,7 +114,6 @@
             border-bottom: 1px solid var(--glass-border);
         }
 
-        /* --- LAYOUT --- */
         .app-container {
             display: grid;
             grid-template-columns: 320px 1fr 340px; 
@@ -128,17 +124,16 @@
             transition: all 0.5s ease;
         }
 
-        /* ZEN MODE STYLES */
         body.zen-mode .app-container {
             display: flex;
             justify-content: center;
             align-items: center;
         }
         body.zen-mode .glass-panel {
-            display: none; /* Hide all panels by default in Zen Mode */
+            display: none; 
         }
         body.zen-mode .glass-panel.timer-panel {
-            display: flex; /* Show only timer panel */
+            display: flex; 
             width: 100%;
             max-width: 450px;
             height: auto;
@@ -146,7 +141,6 @@
             transform: scale(1.05);
         }
 
-        /* --- GLASSMOPHISM CARDS --- */
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
@@ -164,7 +158,6 @@
         h2 { font-weight: 800; font-size: 1.2rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         h2 i { color: var(--accent); transition: color 0.3s ease; }
 
-        /* --- LEFT: TIMER --- */
         .timer-display {
             font-size: 4.5rem;
             font-weight: 800;
@@ -238,7 +231,6 @@
         .mode-btn:hover { color: white; }
         .mode-btn.active { background: rgba(255,255,255,0.1); color: white; font-weight: 600; }
 
-        /* Timer Custom Input Styled Cleanly */
         .custom-timer-container {
             margin-bottom: 20px;
             padding: 0 10px;
@@ -270,7 +262,6 @@
         }
         .custom-timer-input input:focus { border-color: var(--accent); }
 
-        /* Quote Styling Update */
         #quote-container {
             margin-top: auto; 
             min-height: 50px; 
@@ -282,9 +273,9 @@
         }
         #quote-text {
             font-size: 0.95rem; 
-            color: var(--accent); /* Theme Color */
-            font-weight: 800; /* Bold */
-            text-shadow: 0 0 12px var(--accent-glow); /* Glowing Light Effect */
+            color: var(--accent); 
+            font-weight: 800; 
+            text-shadow: 0 0 12px var(--accent-glow); 
             line-height: 1.4;
             transition: all 0.5s ease;
         }
@@ -294,8 +285,6 @@
         }
         .refresh-quote-btn:hover { opacity: 1; color: var(--accent); }
 
-
-        /* --- MIDDLE: TASKS --- */
         .task-header-row {
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0;
         }
@@ -373,7 +362,6 @@
         }
         .delete-btn:hover { color: var(--danger); }
 
-        /* NEW: Daily Goal Tracker (Replaces Scratchpad) */
         .panel-divider {
             height: 1px;
             background: var(--glass-border);
@@ -406,7 +394,6 @@
             font-size: 0.75rem; color: var(--text-muted); text-align: right;
         }
 
-        /* --- RIGHT: SOUNDSCAPES --- */
         .sound-list {
             flex: 1;
             overflow-y: auto;
@@ -444,7 +431,6 @@
         
         .sound-info h4 { font-size: 0.95rem; margin-bottom: 2px; }
 
-        /* Custom Toggle Switch */
         .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
@@ -461,7 +447,6 @@
         input:checked + .slider { background-color: var(--accent); }
         input:checked + .slider:before { transform: translateX(18px); }
 
-        /* Volume Slider */
         input[type=range] {
             width: 100%;
             -webkit-appearance: none;
@@ -479,7 +464,6 @@
         }
         input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
-        /* --- MODAL --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
@@ -503,7 +487,6 @@
         .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
         .modal-text { color: var(--text-muted); margin-bottom: 30px; }
 
-        /* --- RESPONSIVE ADJUSTMENTS --- */
         @media (max-width: 900px) {
             .app-container {
                 grid-template-columns: 1fr;
@@ -515,12 +498,10 @@
             body { overflow: auto; height: auto; }
             
             .top-header { padding: 0 15px; }
-            .header-clock { display: none; } /* Hide desktop clock */
+            .header-clock { display: none; } 
             
-            /* Mobile-only clock */
             .mobile-clock-container { display: block; }
 
-            /* Mobile Theme Button */
             .mobile-theme-btn {
                 display: flex;
                 align-items: center;
@@ -534,7 +515,6 @@
                 cursor: pointer;
             }
             
-            /* Reposition Theme Dots as a floating panel on mobile */
             .theme-dots {
                 display: none;
                 position: absolute;
@@ -553,7 +533,6 @@
             .theme-dots.mobile-show { display: flex; }
             .theme-dot { width: 18px; height: 18px; }
 
-            /* Adjust Zen Button */
             .zen-btn {
                 padding: 6px 8px;
                 font-size: 0.75rem;
@@ -599,7 +578,6 @@
     </div>
 </header>
 
-<!-- New Mobile Live Clock section -->
 <div class="mobile-clock-container" id="mobile-live-clock">
     Loading...
 </div>
@@ -950,43 +928,31 @@
 <audio id="alarmSound" src="mixkit-classic-clock-gong-1066.wav"></audio>
 
 <script>
-    // --- 0. LIVE HEADER CLOCK ---
     function updateClock() {
         const now = new Date();
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        
         const day = days[now.getDay()];
         const month = months[now.getMonth()];
         const date = now.getDate();
-        
         let hours = now.getHours();
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
         const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12;
-        hours = hours ? hours : 12; 
-        
+        hours = hours % 12 || 12;
         const timeString = `${day}, ${month} ${date} <span class="divider">|</span> ${hours}:${minutes}:${seconds} ${ampm}`;
         const mobileTimeString = `${day}, ${month} ${date} | ${hours}:${minutes}:${seconds} ${ampm}`;
-
-        // Update Desktop Clock
         const clockEl = document.getElementById('live-clock');
         if (clockEl) clockEl.innerHTML = timeString;
-
-        // Update Mobile Clock
         const mobileClockEl = document.getElementById('mobile-live-clock');
         if (mobileClockEl) mobileClockEl.innerHTML = mobileTimeString;
     }
     setInterval(updateClock, 1000);
     updateClock();
 
-    // --- THEME AND ZEN MODE ---
     function setTheme(color) {
         document.documentElement.style.setProperty('--accent', color);
         document.documentElement.style.setProperty('--accent-glow', color + '66');
-        
-        // Hide mobile theme dots after selection
         document.getElementById('themeSelector').classList.remove('mobile-show');
     }
 
@@ -1007,25 +973,43 @@
         }
     }
 
-
-    // --- 1. TIMER LOGIC ---
     let timeLeft = 25 * 60;
+    let expectedEndTime = null;
     let timerId = null;
     let isRunning = false;
     let currentMode = 'focus';
     let sessionsCompleted = 0;
 
-    const modes = {
-        focus: 25 * 60,
-        short: 5 * 60,
-        long: 15 * 60
-    };
+    const modes = { focus: 25 * 60, short: 5 * 60, long: 15 * 60 };
+
+    // --- BROWSER NOTIFICATION SYSTEM ---
+function requestNotificationPermission() {
+    // Check if the browser supports notifications
+    if (!("Notification" in window)) return;
+    
+    // Request permission if not already granted or denied
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission();
+    }
+}
+
+function sendSessionNotification() {
+    // Send the alert only if permission was granted by the user
+    if (Notification.permission === "granted") {
+        const title = "FlowState: Session Complete!";
+        const options = {
+            body: currentMode === 'focus' ? "Great job! Time for a break." : "Break is over! Ready to focus?",
+            icon: "https://cdn-icons-png.flaticon.com/512/2553/2553381.png", // Icon for the alert
+            silent: false
+        };
+        new Notification(title, options);
+    }
+}
 
     function updateFocusDuration(val) {
         const minutes = parseInt(val);
         if (minutes && minutes > 0) {
             modes.focus = minutes * 60;
-            // Only update timer immediately if we are in 'focus' mode and timer isn't running
             if (currentMode === 'focus' && !isRunning) {
                 timeLeft = modes.focus;
                 updateDisplay();
@@ -1034,52 +1018,68 @@
     }
 
     function updateDisplay() {
-        const m = Math.floor(timeLeft / 60);
-        const s = timeLeft % 60;
+        const m = Math.floor(Math.max(0, timeLeft) / 60);
+        const s = Math.floor(Math.max(0, timeLeft)) % 60;
         document.getElementById('timer').innerText = `${m}:${s < 10 ? '0'+s : s}`;
         document.title = `${m}:${s < 10 ? '0'+s : s} - FlowState`;
     }
 
     function toggleTimer() {
         const btn = document.getElementById('startBtn');
+        requestNotificationPermission();
         if (isRunning) {
             clearInterval(timerId);
             isRunning = false;
             btn.innerText = "Start Focus";
             btn.classList.remove('active');
+            expectedEndTime = null;
         } else {
             isRunning = true;
             btn.innerText = "Pause";
+            btn.classList.add('active');
+            expectedEndTime = Date.now() + (timeLeft * 1000);
             timerId = setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
+                const now = Date.now();
+                const diff = (expectedEndTime - now) / 1000;
+                if (diff > 0) {
+                    timeLeft = diff;
                     updateDisplay();
                 } else {
                     clearInterval(timerId);
                     isRunning = false;
+                    timeLeft = 0;
+                    updateDisplay();
                     btn.innerText = "Start Focus";
-                    
-                    // --- CHANGED: Plays the Alarm sound from HTML ID ---
+                    btn.classList.remove('active');
                     document.getElementById('alarmSound').play();
-                    
+                    sendSessionNotification();
                     if (currentMode === 'focus') {
                         sessionsCompleted++;
                         document.getElementById('sessionCount').innerText = sessionsCompleted;
                     }
-                    
-                    showModal(); // Use Modal instead of Alert
+                    showModal();
                 }
-            }, 1000);
+            }, 500);
         }
     }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && isRunning && expectedEndTime) {
+            const now = Date.now();
+            timeLeft = (expectedEndTime - now) / 1000;
+            updateDisplay();
+        }
+    });
 
     function resetTimer() {
         clearInterval(timerId);
         isRunning = false;
+        expectedEndTime = null;
         document.getElementById('startBtn').innerText = "Start Focus";
+        document.getElementById('startBtn').classList.remove('active');
         timeLeft = modes[currentMode];
         updateDisplay();
-        updateQuote(); // New Quote on Reset
+        updateQuote();
     }
     
     function resetSessionCount() {
@@ -1091,25 +1091,13 @@
         currentMode = mode;
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
-        
         const customInputContainer = document.querySelector('.custom-timer-container');
-        if (mode === 'focus') {
-            customInputContainer.style.display = 'block';
-        } else {
-            customInputContainer.style.display = 'none';
-        }
-
+        customInputContainer.style.display = (mode === 'focus') ? 'block' : 'none';
         resetTimer();
     }
     
-    // --- MODAL & QUOTES LOGIC ---
-    function showModal() {
-        document.getElementById('finishModal').classList.add('show');
-    }
-    function closeModal() {
-        document.getElementById('finishModal').classList.remove('show');
-        resetTimer();
-    }
+    function showModal() { document.getElementById('finishModal').classList.add('show'); }
+    function closeModal() { document.getElementById('finishModal').classList.remove('show'); resetTimer(); }
 
     const quotes = [
         "The only way to do great work is to love what you do.",
@@ -1127,7 +1115,6 @@
         document.getElementById('quote-text').innerText = `"${randomQuote}"`;
     }
 
-    // --- KEYBOARD SHORTCUTS ---
     document.addEventListener('keydown', (e) => {
         if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
             e.preventDefault();
@@ -1135,7 +1122,6 @@
         }
     });
 
-    // --- 2. TASK MANAGER (LocalStorage) ---
     let tasks = JSON.parse(localStorage.getItem('flowstate_tasks')) || [];
 
     function renderTasks() {
@@ -1154,7 +1140,7 @@
             list.appendChild(item);
         });
         localStorage.setItem('flowstate_tasks', JSON.stringify(tasks));
-        updateGoalProgress(); // Update daily goal when tasks change
+        updateGoalProgress();
     }
 
     function addTask() {
@@ -1165,35 +1151,15 @@
         renderTasks();
     }
 
-    function handleKeyPress(e) {
-        if (e.key === 'Enter') addTask();
-    }
+    function handleKeyPress(e) { if (e.key === 'Enter') addTask(); }
+    function toggleTask(index) { tasks[index].completed = !tasks[index].completed; renderTasks(); }
+    function deleteTask(index) { tasks.splice(index, 1); renderTasks(); }
+    function clearCompletedTasks() { tasks = tasks.filter(t => !t.completed); renderTasks(); }
 
-    function toggleTask(index) {
-        tasks[index].completed = !tasks[index].completed;
-        renderTasks();
-    }
-
-    function deleteTask(index) {
-        tasks.splice(index, 1);
-        renderTasks();
-    }
-    
-    // Feature: Clear Completed
-    function clearCompletedTasks() {
-        tasks = tasks.filter(t => !t.completed);
-        renderTasks();
-    }
-
-    // --- 2.5 DAILY GOAL LOGIC ---
     let dailyGoal = 8;
-    
     function updateGoal() {
         const input = document.getElementById('goalInput');
-        if(input.value > 0) {
-            dailyGoal = parseInt(input.value);
-            updateGoalProgress();
-        }
+        if(input.value > 0) { dailyGoal = parseInt(input.value); updateGoalProgress(); }
     }
 
     function updateGoalProgress() {
@@ -1203,137 +1169,75 @@
         document.getElementById('goalStatus').innerText = `${completedTasksCount}/${dailyGoal} Tasks Completed`;
     }
 
-    // Initialize with updated goal tracking logic
     renderTasks();
     
-    // --- 3. AUDIO ENGINE ---
-
-    // --- White Noise (Web Audio API) ---
     const AudioContext = window.AudioContext || window.webkitAudioContext;
-    let audioCtx;
-    let noiseNode;
-    let gainNode;
+    let audioCtx, noiseNode, gainNode;
 
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new AudioContext();
-        }
-    }
+    function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); }
 
     function createNoise() {
         if (!audioCtx) initAudio();
         const bufferSize = audioCtx.sampleRate * 2;
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);
-
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1;
-        }
-
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
         noiseNode = audioCtx.createBufferSource();
         noiseNode.buffer = buffer;
         noiseNode.loop = true;
-        
         const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.value = 1000;
-
-        gainNode = audioCtx.createGain();
-        gainNode.gain.value = 0.5;
-
-        noiseNode.connect(filter);
-        filter.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
+        filter.type = 'lowpass'; filter.frequency.value = 1000;
+        gainNode = audioCtx.createGain(); gainNode.gain.value = 0.5;
+        noiseNode.connect(filter); filter.connect(gainNode); gainNode.connect(audioCtx.destination);
         noiseNode.start();
     }
 
     function toggleNoise() {
         const toggle = document.getElementById('noiseToggle');
-        if (toggle.checked) {
-            createNoise();
-        } else {
-            if (noiseNode) {
-                noiseNode.stop();
-                noiseNode = null;
-            }
-        }
+        if (toggle.checked) createNoise();
+        else if (noiseNode) { noiseNode.stop(); noiseNode = null; }
     }
 
-    function setNoiseVolume(val) {
-        if (gainNode) gainNode.gain.value = val;
-    }
+    function setNoiseVolume(val) { if (gainNode) gainNode.gain.value = val; }
 
-    // --- Audio File Sounds ---
     function setupAudioControl(audioId, toggleId) {
         const audioEl = document.getElementById(audioId);
         const toggleEl = document.getElementById(toggleId);
-        
         return {
             toggle: () => {
-                if (toggleEl.checked) {
-                    audioEl.play().catch(e => console.log("Audio play error (check file source):", e));
-                } else {
-                    audioEl.pause();
-                }
+                if (toggleEl.checked) audioEl.play().catch(e => console.log("Audio play error:", e));
+                else audioEl.pause();
             },
-            setVolume: (val) => {
-                audioEl.volume = val;
-            }
+            setVolume: (val) => { audioEl.volume = val; }
         };
     }
 
     const rainControls = setupAudioControl('rainAudio', 'rainToggle');
-    const toggleRain = rainControls.toggle;
-    const setRainVolume = rainControls.setVolume;
-
+    const toggleRain = rainControls.toggle; const setRainVolume = rainControls.setVolume;
     const forestControls = setupAudioControl('forestAudio', 'forestToggle');
-    const toggleForest = forestControls.toggle;
-    const setForestVolume = forestControls.setVolume;
-
+    const toggleForest = forestControls.toggle; const setForestVolume = forestControls.setVolume;
     const oceanControls = setupAudioControl('oceanAudio', 'oceanToggle');
-    const toggleOcean = oceanControls.toggle;
-    const setOceanVolume = oceanControls.setVolume;
-
+    const toggleOcean = oceanControls.toggle; const setOceanVolume = oceanControls.setVolume;
     const fireControls = setupAudioControl('fireAudio', 'fireToggle');
-    const toggleFire = fireControls.toggle;
-    const setFireVolume = fireControls.setVolume;
-    
+    const toggleFire = fireControls.toggle; const setFireVolume = fireControls.setVolume;
     const windControls = setupAudioControl('windAudio', 'windToggle');
-    const toggleWind = windControls.toggle; 
-    const setWindVolume = windControls.setVolume;
-
+    const toggleWind = windControls.toggle; const setWindVolume = windControls.setVolume;
     const libraryControls = setupAudioControl('libraryAudio', 'libraryToggle');
-    const toggleLibrary = libraryControls.toggle;
-    const setLibraryVolume = libraryControls.setVolume;
-
+    const toggleLibrary = libraryControls.toggle; const setLibraryVolume = libraryControls.setVolume;
     const thunderControls = setupAudioControl('thunderAudio', 'thunderToggle');
-    const toggleThunder = thunderControls.toggle;
-    const setThunderVolume = thunderControls.setVolume;
-
+    const toggleThunder = thunderControls.toggle; const setThunderVolume = thunderControls.setVolume;
     const nightControls = setupAudioControl('nightAudio', 'nightToggle');
-    const toggleNight = nightControls.toggle;
-    const setNightVolume = nightControls.setVolume;
-
+    const toggleNight = nightControls.toggle; const setNightVolume = nightControls.setVolume;
     const birdsControls = setupAudioControl('birdsAudio', 'birdsToggle');
-    const toggleBirds = birdsControls.toggle;
-    const setBirdsVolume = birdsControls.setVolume;
-
+    const toggleBirds = birdsControls.toggle; const setBirdsVolume = birdsControls.setVolume;
     const riverControls = setupAudioControl('riverAudio', 'riverToggle');
-    const toggleRiver = riverControls.toggle;
-    const setRiverVolume = riverControls.setVolume;
-
+    const toggleRiver = riverControls.toggle; const setRiverVolume = riverControls.setVolume;
     const farmControls = setupAudioControl('FarmAudio', 'farmToggle');
-    const toggleFarm = farmControls.toggle;
-    const setFarmVolume = farmControls.setVolume;
-
+    const toggleFarm = farmControls.toggle; const setFarmVolume = farmControls.setVolume;
     const trainControls = setupAudioControl('trainAudio', 'trainToggle');
-    const toggleTrain = trainControls.toggle;
-    const setTrainVolume = trainControls.setVolume;
-
+    const toggleTrain = trainControls.toggle; const setTrainVolume = trainControls.setVolume;
     const spaceControls = setupAudioControl('spaceAudio', 'spaceToggle');
-    const toggleSpace = spaceControls.toggle;
-    const setSpaceVolume = spaceControls.setVolume;
-
+    const toggleSpace = spaceControls.toggle; const setSpaceVolume = spaceControls.setVolume;
 </script>
 </body>
 </html>
