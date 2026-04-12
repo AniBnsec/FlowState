@@ -63,12 +63,13 @@
         .header-controls {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 12px;
         }
 
         .theme-dots {
             display: flex;
             gap: 8px;
+            margin-right: 10px;
         }
         .theme-dot {
             width: 12px; height: 12px;
@@ -89,6 +90,7 @@
             font-size: 0.85rem;
             display: flex; align-items: center; gap: 6px;
             transition: all 0.2s;
+            white-space: nowrap;
         }
         .zen-btn:hover { background: rgba(255,255,255,0.1); color: white; }
         .zen-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
@@ -101,6 +103,7 @@
             font-weight: 500;
             color: var(--text-main);
             letter-spacing: 0px;
+            margin-right: 20px;
         }
         .header-clock span.divider { margin: 0 10px; color: var(--text-muted); font-weight: 300; }
 
@@ -464,6 +467,45 @@
         }
         input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
+        /* MUSIC PANEL SPECIFIC STYLES */
+        .music-panel {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .music-player-container {
+            position: relative;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 16/9;
+            margin-bottom: 15px;
+            border: 1px solid var(--glass-border);
+        }
+        .music-player-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            pointer-events: none; /* Block direct interaction to maintain UI control */
+        }
+        .music-player-container.unlocked iframe {
+            pointer-events: auto;
+        }
+        .music-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        .music-vol-control {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
@@ -487,10 +529,48 @@
         .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
         .modal-text { color: var(--text-muted); margin-bottom: 30px; }
 
+        /* HISTORY OVERLAY STYLES */
+        .history-content {
+            max-width: 500px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            text-align: left;
+            padding: 30px;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .history-list::-webkit-scrollbar { width: 6px; }
+        .history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        
+        .history-item {
+            background: rgba(255,255,255,0.03);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-item-info h4 { font-size: 0.95rem; text-transform: capitalize; }
+        .history-item-info p { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        .history-duration { font-family: 'JetBrains Mono'; font-weight: bold; color: var(--accent); }
+
         @media (max-width: 900px) {
             .app-container {
                 grid-template-columns: 1fr;
-                grid-template-rows: auto auto auto;
+                grid-template-rows: auto auto auto auto;
                 overflow-y: auto;
                 padding: 15px;
                 gap: 15px;
@@ -572,6 +652,10 @@
             <div class="theme-dot" style="background: #636e72;" onclick="setTheme('#636e72')" title="Slate"></div>
         </div>
 
+        <button class="zen-btn" onclick="toggleHistory()" style="margin-right: 5px;">
+            <i class="fas fa-history"></i> History
+        </button>
+
         <button class="zen-btn" onclick="toggleZenMode()" id="zenBtn">
             <i class="fas fa-expand"></i> Zen Mode
         </button>
@@ -651,6 +735,26 @@
     </div>
 
     <div class="glass-panel">
+        <div class="music-panel">
+            <h2><i class="fas fa-broadcast-tower"></i> Music Station</h2>
+            <div class="music-player-container" id="musicPlayerContainer">
+                <div id="yt-player"></div>
+            </div>
+            <div class="music-controls-row">
+                <div class="music-vol-control">
+                    <i class="fas fa-volume-down"></i>
+                    <input type="range" id="musicVolume" min="0" max="100" value="50" oninput="setMusicVolume(this.value)">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="musicToggle" onchange="toggleMusic()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="panel-divider"></div>
+
         <h2><i class="fas fa-sliders-h"></i> Sound Mixer</h2>
         
         <div class="sound-list">
@@ -902,12 +1006,27 @@
 
 </div>
 
+<!-- FINISH MODAL -->
 <div class="modal-overlay" id="finishModal">
     <div class="modal-content">
         <div class="modal-icon"><i class="fas fa-check-circle"></i></div>
         <div class="modal-title">Session Complete!</div>
-        <div class="modal-text">Great job staying focused. Take a moment to breathe.</div>
+        <div class="modal-text" id="modalMessage">Great job staying focused. Take a moment to breathe.</div>
         <button class="btn btn-primary" onclick="closeModal()">Continue</button>
+    </div>
+</div>
+
+<!-- HISTORY OVERLAY -->
+<div class="modal-overlay" id="historyOverlay">
+    <div class="modal-content history-content">
+        <div class="history-header">
+            <div class="modal-title" style="margin-bottom: 0;">Session History</div>
+            <button class="clear-btn" onclick="clearHistory()"><i class="fas fa-trash-alt"></i> Clear All</button>
+        </div>
+        <div class="history-list" id="historyList">
+            <!-- History items will be injected here -->
+        </div>
+        <button class="btn btn-secondary" onclick="toggleHistory()" style="margin-top: 20px;">Close</button>
     </div>
 </div>
 
@@ -927,7 +1046,53 @@
 
 <audio id="alarmSound" src="mixkit-classic-clock-gong-1066.wav"></audio>
 
+<script src="https://www.youtube.com/iframe_api"></script>
+
 <script>
+    // --- YOUTUBE PLAYER CONFIG ---
+    let player;
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('yt-player', {
+            height: '100%',
+            width: '100%',
+            videoId: 'SnX4knSvyko', // Bossa Lofi ID
+            playerVars: {
+                'autoplay': 0,
+                'controls': 0,
+                'disablekb': 1,
+                'modestbranding': 1,
+                'rel': 0,
+                'showinfo': 0
+            },
+            events: {
+                'onReady': onPlayerReady
+            }
+        });
+    }
+
+    function onPlayerReady(event) {
+        // Initial volume sync
+        player.setVolume(document.getElementById('musicVolume').value);
+    }
+
+    function toggleMusic() {
+        const toggle = document.getElementById('musicToggle');
+        if (!player) return;
+        
+        if (toggle.checked) {
+            player.playVideo();
+        } else {
+            player.pauseVideo();
+        }
+    }
+
+    function setMusicVolume(val) {
+        if (player && player.setVolume) {
+            player.setVolume(val);
+        }
+    }
+
+    // --- ORIGINAL APP LOGIC ---
     function updateClock() {
         const now = new Date();
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -983,28 +1148,24 @@
     const modes = { focus: 25 * 60, short: 5 * 60, long: 15 * 60 };
 
     // --- BROWSER NOTIFICATION SYSTEM ---
-function requestNotificationPermission() {
-    // Check if the browser supports notifications
-    if (!("Notification" in window)) return;
-    
-    // Request permission if not already granted or denied
-    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-        Notification.requestPermission();
+    function requestNotificationPermission() {
+        if (!("Notification" in window)) return;
+        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
     }
-}
 
-function sendSessionNotification() {
-    // Send the alert only if permission was granted by the user
-    if (Notification.permission === "granted") {
-        const title = "FlowState: Session Complete!";
-        const options = {
-            body: currentMode === 'focus' ? "Great job! Time for a break." : "Break is over! Ready to focus?",
-            icon: "https://cdn-icons-png.flaticon.com/512/2553/2553381.png", // Icon for the alert
-            silent: false
-        };
-        new Notification(title, options);
+    function sendSessionNotification() {
+        if (Notification.permission === "granted") {
+            const title = "FlowState: Session Complete!";
+            const options = {
+                body: currentMode === 'focus' ? "Great job! Time for a break." : "Break is over! Ready to focus?",
+                icon: "https://cdn-icons-png.flaticon.com/512/2553/2553381.png",
+                silent: false
+            };
+            new Notification(title, options);
+        }
     }
-}
 
     function updateFocusDuration(val) {
         const minutes = parseInt(val);
@@ -1047,6 +1208,11 @@ function sendSessionNotification() {
                 } else {
                     clearInterval(timerId);
                     isRunning = false;
+                    
+                    // Log to history
+                    const durationInMinutes = Math.round(modes[currentMode] / 60);
+                    addHistoryItem(currentMode, durationInMinutes);
+
                     timeLeft = 0;
                     updateDisplay();
                     btn.innerText = "Start Focus";
@@ -1090,13 +1256,21 @@ function sendSessionNotification() {
     function setMode(mode) {
         currentMode = mode;
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
+        
+        // Fix: Use e.currentTarget or event.target reliably
+        const target = event.target || document.querySelector(`.mode-btn[onclick="setMode('${mode}')"]`);
+        target.classList.add('active');
+        
         const customInputContainer = document.querySelector('.custom-timer-container');
         customInputContainer.style.display = (mode === 'focus') ? 'block' : 'none';
         resetTimer();
     }
     
-    function showModal() { document.getElementById('finishModal').classList.add('show'); }
+    function showModal() { 
+        const msg = currentMode === 'focus' ? "Great job! Time for a break." : "Break is over! Ready to focus?";
+        document.getElementById('modalMessage').innerText = msg;
+        document.getElementById('finishModal').classList.add('show'); 
+    }
     function closeModal() { document.getElementById('finishModal').classList.remove('show'); resetTimer(); }
 
     const quotes = [
@@ -1122,6 +1296,7 @@ function sendSessionNotification() {
         }
     });
 
+    // --- TASK LOGIC ---
     let tasks = JSON.parse(localStorage.getItem('flowstate_tasks')) || [];
 
     function renderTasks() {
@@ -1170,7 +1345,59 @@ function sendSessionNotification() {
     }
 
     renderTasks();
+
+    // --- HISTORY LOGIC ---
+    let sessionHistory = JSON.parse(localStorage.getItem('flowstate_history')) || [];
+
+    function toggleHistory() {
+        const overlay = document.getElementById('historyOverlay');
+        overlay.classList.toggle('show');
+        if (overlay.classList.contains('show')) {
+            renderHistory();
+        }
+    }
+
+    function addHistoryItem(type, duration) {
+        const now = new Date();
+        const item = {
+            type: type,
+            duration: duration,
+            timestamp: now.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        };
+        sessionHistory.unshift(item); // Add to beginning
+        localStorage.setItem('flowstate_history', JSON.stringify(sessionHistory));
+    }
+
+    function renderHistory() {
+        const list = document.getElementById('historyList');
+        list.innerHTML = '';
+        
+        if (sessionHistory.length === 0) {
+            list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">No sessions logged yet. Time to focus!</div>';
+            return;
+        }
+
+        sessionHistory.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `
+                <div class="history-item-info">
+                    <h4>${item.type} Session</h4>
+                    <p>${item.timestamp}</p>
+                </div>
+                <div class="history-duration">${item.duration}m</div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function clearHistory() {
+        sessionHistory = [];
+        localStorage.removeItem('flowstate_history');
+        renderHistory();
+    }
     
+    // --- AUDIO LOGIC ---
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx, noiseNode, gainNode;
 
