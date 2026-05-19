@@ -30,7 +30,7 @@
 - **Real-time Clock:** Always know the current date and time without leaving the tab.
 - **Theme Accents:** Customizable color accents (top right) to match your mood.
 
----
+----
 
 ## 🛠️ Tech Stack
 
